@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>ルール・FAQ</h1>
+<p>
+  <button type="button" class="btn-print" onclick="window.print()">🖨 印刷する</button>
+</p>
+
+<datalist id="category-options">
+{% for cat in all_categories %}
+  <option value="{{ cat }}">
+{% endfor %}
+</datalist>
+
+<form method="get" action="{{ url_for('info.rules_faq') }}">
+  <label>カテゴリで絞り込み
+    <select name="category" onchange="this.form.submit()">
+      <option value="" {% if not category_filter %}selected{% endif %}>すべてのカテゴリ</option>
+      {% for cat in all_categories %}
+      <option value="{{ cat }}" {% if category_filter == cat %}selected{% endif %}>{{ cat }}</option>
+      {% endfor %}
+    </select>
+  </label>
+</form>
+
+<h2>ルール {% if can_edit %}<span class="badge-admin">🔒編集は管理者限定</span>{% endif %}</h2>
+<form method="get" action="{{ url_for('info.rules_faq') }}">
+  {% if category_filter %}<input type="hidden" name="category" value="{{ category_filter }}">{% endif %}
+  <input type="text" name="q" value="{{ rule_keyword }}" placeholder="キーワードで検索（例: 持ち物）">
+  <button type="submit">検索</button>
+</form>
+
+{% if can_edit %}
+<p class="hint">物品管理と同じく、一覧上でまとめて更新・削除・追加して1回で保存できます。</p>
+<form method="post" action="{{ url_for('info.rule_bulk_save') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="table-scroll">
+    <table class="grid-table">
+      <tr><th>カテゴリ</th><th>本文</th><th>変更理由</th><th>削除</th></tr>
+      {% for rule in rules %}
+      <tr>
+        <td><input type="text" name="category_{{ rule.id }}" value="{{ rule.category }}" list="category-options"></td>
+        <td><textarea name="body_{{ rule.id }}" placeholder="例: 練習は毎週土曜9:00〜11:00に体育館で行います">{{ rule.current_body }}</textarea></td>
+        <td><input type="text" name="reason_{{ rule.id }}" placeholder="任意"></td>
+        <td>
+          <input type="checkbox" name="delete_{{ rule.id }}"> 削除<br>
+          <a href="{{ url_for('info.rule_history', rule_id=rule.id) }}">履歴</a>
+        </td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td><input type="text" name="new_category" list="category-options" placeholder="例: 持ち物"></td>
+        <td><textarea name="new_body" placeholder="例: 練習は毎週土曜9:00〜11:00に体育館で行います"></textarea></td>
+        <td><input type="text" name="new_reason" placeholder="任意"></td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+  <button type="submit">ルールを一括保存する</button>
+</form>
+{% else %}
+{% for category_label, category_rules in rules_by_category %}
+<h3>【{{ category_label }}】</h3>
+<ul>
+  {% for rule in category_rules %}
+  <li>{{ rule.current_body }}（<a href="{{ url_for('info.rule_history', rule_id=rule.id) }}">変更履歴</a>）</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>該当するルールはありません</p>
+{% endfor %}
+{% endif %}
+
+<hr>
+
+<h2>FAQ {% if can_edit %}<span class="badge-admin">🔒編集は管理者限定</span>{% endif %}</h2>
+<form method="get" action="{{ url_for('info.faq_search') }}">
+  <input type="text" name="q" placeholder="キーワードで検索（例: 持ち物）">
+  <button type="submit">検索</button>
+</form>
+
+{% if can_edit %}
+<p class="hint">こちらも一覧上でまとめて更新・削除・追加して1回で保存できます。</p>
+<form method="post" action="{{ url_for('info.faq_bulk_save') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="table-scroll">
+    <table class="grid-table">
+      <tr><th>カテゴリ</th><th>質問</th><th>回答</th><th>キーワード</th><th>削除</th></tr>
+      {% for faq in faqs %}
+      <tr>
+        <td><input type="text" name="category_{{ faq.id }}" value="{{ faq.category }}" list="category-options"></td>
+        <td><input type="text" name="question_{{ faq.id }}" value="{{ faq.question }}"></td>
+        <td><textarea name="answer_{{ faq.id }}">{{ faq.answer }}</textarea></td>
+        <td><input type="text" name="keywords_{{ faq.id }}" value="{{ faq.keywords }}" placeholder="例: 持ち物,水筒"></td>
+        <td><input type="checkbox" name="delete_{{ faq.id }}"> 削除</td>
+      </tr>
+      {% endfor %}
+      <tr>
+        <td><input type="text" name="new_category" list="category-options" placeholder="例: 持ち物"></td>
+        <td><input type="text" name="new_question" placeholder="例: 持ち物は何がありますか？"></td>
+        <td><textarea name="new_answer" placeholder="例: 体操着、上履き、水筒をお持ちください"></textarea></td>
+        <td><input type="text" name="new_keywords" placeholder="例: 持ち物,水筒"></td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+  <button type="submit">FAQを一括保存する</button>
+</form>
+{% else %}
+{% for category_label, category_faqs in faqs_by_category %}
+<h3>【{{ category_label }}】</h3>
+<ul>
+  {% for faq in category_faqs %}
+  <li>Q. {{ faq.question }}<br>A. {{ faq.answer }}</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>該当するFAQはありません</p>
+{% endfor %}
+{% endif %}
+
+<hr>
+
+<h2>物品</h2>
+<p class="hint">
+  入力・編集は管理者ホームの「物品を管理」から行います。ここでは一覧の確認のみできます。
+</p>
+{% for category_label, category_items in items_by_category %}
+<h3>【{{ category_label }}】</h3>
+<ul>
+{% for item in category_items %}
+  <li>{{ item.name }}：{{ item.count }}個（{{ item.location_text }}）</li>
+{% endfor %}
+</ul>
+{% else %}
+<p>該当する備品はありません</p>
+{% endfor %}
+{% endblock %}

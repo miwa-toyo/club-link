@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>合宿一覧</h1>
+<ul class="card-list">
+{% for camp in camps %}
+  <li class="card">
+    <span class="card-icon">🏕️</span>
+    <a href="{{ url_for('camp.camp_edit', camp_id=camp.id) }}">
+      {{ camp.title }}（{{ camp.starts_on }} 〜 {{ camp.ends_on }}）
+    </a>
+  </li>
+{% else %}
+  <li>合宿はまだ登録されていません</li>
+{% endfor %}
+</ul>
+{% endblock %}

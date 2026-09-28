@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>部費設定（男女別）</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+<ul>
+{% for fee in fees %}
+  <li>
+    {{ fee.year }}年{{ fee.month }}月：男子 {{ fee.amount_yen_male }}円 / 女子 {{ fee.amount_yen_female }}円
+    — <a href="{{ url_for('fee.payment_bulk_update', fee_id=fee.id) }}">入金状況を管理</a>
+  </li>
+{% else %}
+  <li>部費はまだ設定されていません</li>
+{% endfor %}
+</ul>
+<p><a href="{{ url_for('fee.billing_csv') }}">徴収一覧CSVをダウンロード</a></p>
+
+<h2>部費を設定・更新</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.year.label }} {{ form.year() }}</p>
+  <p>{{ form.month.label }} {{ form.month() }}</p>
+  <p>{{ form.amount_yen_male.label }} {{ form.amount_yen_male() }}</p>
+  <p>{{ form.amount_yen_female.label }} {{ form.amount_yen_female() }}</p>
+  <button type="submit">保存する</button>
+</form>
+{% endblock %}

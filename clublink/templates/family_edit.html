@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>お子さまの追加</h1>
+<ul>
+{% for child in guardian.children %}
+  <li>{{ child.display_name }}</li>
+{% endfor %}
+</ul>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.family_name.label }} {{ form.family_name() }}</p>
+  <p>{{ form.court_name.label }} {{ form.court_name() }}</p>
+  <p>{{ form.gender.label }} {{ form.gender() }}</p>
+  <p>{{ form.birth_date.label }} {{ form.birth_date() }}</p>
+  <p>{{ form.allergy.label }} {{ form.allergy() }}</p>
+  <p>{{ form.status.label }} {{ form.status() }}</p>
+  <button type="submit">追加する</button>
+</form>
+<p><a href="{{ url_for('mypage.mypage') }}">← マイページに戻る</a></p>
+{% endblock %}

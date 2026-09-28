@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>会計</h1>
+
+<div class="card" style="display:block;">
+  <strong>集計</strong>
+  <p>
+    部費合計額：{{ summary.total_fee_income }}円　／
+    支出合計：{{ summary.total_expense }}円　／
+    現在の残高（繰越金）：{{ summary.current_balance }}円
+  </p>
+</div>
+
+{% if monthly_rows %}
+<h2>月ごとの繰越金</h2>
+<div class="table-scroll">
+  <table class="grid-table">
+    <tr><th>年月</th><th>繰越金（前月から）</th><th>収入</th><th>支出</th><th>残高（翌月への繰越金）</th></tr>
+    {% for row in monthly_rows %}
+    <tr>
+      <td>{{ row.label }}</td>
+      <td>{{ row.carryover }}円</td>
+      <td>{{ row.income }}円</td>
+      <td>{{ row.expense }}円</td>
+      <td>{{ row.balance }}円</td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+{% if can_post %}
+<p class="hint"><span class="badge-admin">🔒 手動の記録は一括で更新・削除・追加できます</span></p>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="table-scroll">
+    <table class="grid-table">
+      <tr><th>日付</th><th>種別</th><th>種類</th><th>金額（円）</th><th>メモ</th><th>削除</th></tr>
+      {% for entry in entries %}
+      <tr>
+        <td>{{ entry.created_at.strftime('%Y-%m-%d') }}</td>
+        <td>{{ entry.source_type }}</td>
+        {% if entry.source_type == "手動" %}
+        <td>
+          <select name="kind_{{ entry.id }}">
+            <option value="収入" {% if entry.kind == "収入" %}selected{% endif %}>収入</option>
+            <option value="支出" {% if entry.kind == "支出" %}selected{% endif %}>支出</option>
+          </select>
+        </td>
+        <td><input type="number" name="amount_{{ entry.id }}" value="{{ entry.amount_yen }}" min="0"></td>
+        <td><input type="text" name="memo_{{ entry.id }}" value="{{ entry.memo }}" placeholder="例: 練習用ボール購入"></td>
+        <td><input type="checkbox" name="delete_{{ entry.id }}"> 削除</td>
+        {% else %}
+        <td>{{ entry.kind }}</td>
+        <td>{{ entry.amount_yen }}</td>
+        <td>{{ entry.memo }}（自動連携のためここでは編集不可）</td>
+        <td></td>
+        {% endif %}
+      </tr>
+      {% else %}
+      <tr><td colspan="6">会計記録はまだありません</td></tr>
+      {% endfor %}
+      <tr>
+        <td>新規</td>
+        <td>手動</td>
+        <td>
+          <select name="new_kind">
+            <option value="収入">収入</option>
+            <option value="支出">支出</option>
+          </select>
+        </td>
+        <td><input type="number" name="new_amount" min="0" placeholder="金額"></td>
+        <td><input type="text" name="new_memo" placeholder="例: 練習用ボール購入"></td>
+        <td></td>
+      </tr>
+    </table>
+  </div>
+  <button type="submit">一括保存</button>
+</form>
+{% else %}
+<ul class="card-list">
+{% for entry in entries %}
+  <li class="card">
+    <span class="card-icon">{{ "💰" if entry.kind == "収入" else "💸" }}</span>
+    <div>
+      {{ entry.created_at.strftime('%Y-%m-%d') }}
+      [{{ entry.kind }}] {{ entry.amount_yen }}円
+      （{{ entry.source_type }}）{{ entry.memo }}
+    </div>
+  </li>
+{% else %}
+  <li>会計記録はまだありません</li>
+{% endfor %}
+</ul>
+{% endif %}
+{% endblock %}

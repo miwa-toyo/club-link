@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>年間予定</h1>
+{% for month_label, schedules in schedules_by_month %}
+<h2>{{ month_label }}</h2>
+<ul class="card-list">
+{% for schedule in schedules %}
+  <li class="card card-schedule">
+    <span class="card-icon">📅</span>
+    <a href="{{ url_for('schedule.schedule_detail', schedule_id=schedule.id) }}">
+      {{ schedule.starts_at.strftime('%Y-%m-%d %H:%M') }} {{ schedule.kind }}（{{ schedule.place }}）
+    </a>
+  </li>
+{% endfor %}
+</ul>
+{% else %}
+<p>予定はまだ登録されていません</p>
+{% endfor %}
+{% endblock %}

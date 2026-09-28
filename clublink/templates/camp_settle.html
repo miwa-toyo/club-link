@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ camp.title }} — 収支精算</h1>
+<p>合宿費収入（支払い済み分）: {{ total_fees }}円</p>
+<p>支出合計: {{ total_expenses }}円</p>
+<p><strong>収支: {{ balance }}円</strong></p>
+<p><a href="{{ url_for('camp.camp_edit', camp_id=camp.id) }}">合宿詳細に戻る</a></p>
+{% endblock %}

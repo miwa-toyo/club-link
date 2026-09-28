@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Club Link</title>
+  <style>
+    /* 添付画像（券売機の「お会計をはじめる」画面）を参考にした、
+       大きな角丸ボタン・白いカード画面・タッチしやすいレイアウトを全画面共通で適用する。 */
+    :root {
+      --clublink-font-size: 20px;
+      --clublink-control-height: 56px;
+      /* 用途別に色を使い分ける：青=ナビ/情報、黄=注目の主要アクション、緑=保存・確定、赤=削除・警告 */
+      --clublink-blue: #1a5fb4;
+      --clublink-blue-bg: #eef4fc;
+      --clublink-yellow: #f2b705;
+      --clublink-yellow-text: #4a3800;
+      --clublink-green: #2e8b46;
+      --clublink-green-text: #ffffff;
+      --clublink-red: #d1373f;
+      --clublink-red-text: #ffffff;
+      --clublink-border: #8a8a8a;
+      --clublink-focus: var(--clublink-blue);
+      --clublink-page-bg: #eef0f2;
+      --clublink-shell-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      background: var(--clublink-page-bg);
+      margin: 0;
+    }
+
+    body {
+      font-family: "Hiragino Sans", "Yu Gothic", sans-serif;
+      font-size: var(--clublink-font-size);
+      line-height: 1.7;
+      color: #1a1a1a;
+      padding: 20px 12px 60px;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* 券売機の画面のような、白い角丸カードの中に全コンテンツを収める共通シェル。
+       スマホ・PCを問わず、全画面で同じレイアウトにする。 */
+    .page-shell {
+      background: var(--clublink-shell-bg);
+      border-radius: 20px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+      padding: 28px 24px 36px;
+      width: 100%;
+      max-width: 880px;
+    }
+
+    /* PCの画面幅を最大限に活かす。スマホ幅（下の@media (max-width:600px)）には影響しない。 */
+    @media (min-width: 1000px) {
+      .page-shell { max-width: 1200px; }
+    }
+    @media (min-width: 1400px) {
+      .page-shell { max-width: 90vw; }
+    }
+    @media (min-width: 1800px) {
+      .page-shell { max-width: 1600px; }
+    }
+
+    h1 {
+      font-size: 1.7em;
+      margin: 0.2em 0 0.7em;
+      text-align: center;
+    }
+    h2 { font-size: 1.3em; margin: 0.9em 0 0.4em; }
+
+    /* ナビゲーションは券売機の言語選択ボタンのような、細枠の角丸ピル型ボタン群にする */
+    nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      justify-content: center;
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #e2e2e2;
+    }
+    nav a {
+      display: inline-block;
+      font-size: 0.85em;
+      padding: 10px 16px;
+      border: 2px solid var(--clublink-blue);
+      border-radius: 999px;
+      color: var(--clublink-blue);
+      text-decoration: none;
+      background: #ffffff;
+    }
+    nav a:hover { background: var(--clublink-blue-bg); }
+
+    a { color: var(--clublink-blue); }
+
+    /* ボタン・送信系入力：標準は「保存・確定」を表す緑にする */
+    button,
+    input[type="submit"] {
+      display: inline-block;
+      font-size: 1.05em;
+      font-weight: bold;
+      min-height: var(--clublink-control-height);
+      padding: 12px 32px;
+      background-color: var(--clublink-green);
+      color: var(--clublink-green-text);
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(46, 139, 70, 0.35);
+    }
+    button:hover,
+    input[type="submit"]:hover {
+      opacity: 0.9;
+    }
+    button:focus-visible,
+    input[type="submit"]:focus-visible,
+    a:focus-visible,
+    input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible {
+      outline: 3px solid var(--clublink-focus);
+      outline-offset: 2px;
+    }
+
+    /* 文字入力・選択系：文字を大きく、タップ領域を広く */
+    input[type="text"],
+    input[type="email"],
+    input[type="password"],
+    input[type="number"],
+    input[type="date"],
+    input[type="datetime-local"],
+    input[type="file"],
+    select,
+    textarea {
+      font-size: 1em;
+      min-height: var(--clublink-control-height);
+      padding: 8px 12px;
+      border: 2px solid var(--clublink-border);
+      border-radius: 10px;
+      width: 100%;
+      max-width: 420px;
+      background: #ffffff;
+    }
+    textarea { min-height: 120px; }
+
+    label { font-weight: bold; }
+
+    table.grid-table {
+      border-collapse: collapse;
+      width: 100%;
+      font-size: 0.9em;
+    }
+    table.grid-table th,
+    table.grid-table td {
+      border: 1px solid var(--clublink-border);
+      padding: 8px;
+    }
+    table.grid-table input[type="text"],
+    table.grid-table input[type="number"] {
+      min-height: 44px;
+      max-width: none;
+    }
+
+    .hint { color: #444; text-align: center; }
+
+    /* カード型リスト（添付画像のような、アイコン付き角丸カードのデザイン） */
+    ul.card-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    ul.card-list li.card {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      border: 2px solid #d9d9d9;
+      border-radius: 14px;
+      padding: 16px 18px;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    }
+    ul.card-list li.card .card-icon {
+      font-size: 1.6em;
+      flex-shrink: 0;
+    }
+    ul.card-list li.card a {
+      font-size: 1em;
+      text-decoration: none;
+    }
+
+    /* 「お会計をはじめる」のような、ひときわ大きい主要アクションボタン（トップページ等）は黄色で目立たせる */
+    .btn-cta {
+      display: block;
+      font-size: 1.3em;
+      font-weight: bold;
+      padding: 26px 20px;
+      background-color: var(--clublink-yellow);
+      color: var(--clublink-yellow-text);
+      border-radius: 18px;
+      text-decoration: none;
+      text-align: center;
+      box-shadow: 0 3px 8px rgba(242, 183, 5, 0.45);
+    }
+    .btn-cta:hover { opacity: 0.92; }
+
+    /* 印刷（情報系の操作）は青系に統一 */
+    .btn-print {
+      background-color: var(--clublink-blue);
+      box-shadow: none;
+    }
+
+    /* <a>タグをボタンと同じ見た目にする汎用クラス（.btn-print等と組み合わせて使う） */
+    /* <a>や<summary>など、リンク以外の要素をボタンと同じ見た目にする汎用クラス */
+    .btn-link {
+      display: inline-block;
+      font-size: 1.05em;
+      font-weight: bold;
+      min-height: var(--clublink-control-height);
+      line-height: calc(var(--clublink-control-height) - 24px);
+      padding: 12px 32px;
+      border-radius: 16px;
+      color: #ffffff;
+      text-decoration: none;
+      cursor: pointer;
+      width: fit-content;
+    }
+
+    /* 削除・解除など取り消しのきく破壊的操作は赤で警告する */
+    .btn-danger,
+    button.btn-danger,
+    input[type="submit"].btn-danger {
+      background-color: var(--clublink-red);
+      color: var(--clublink-red-text);
+      box-shadow: 0 2px 6px rgba(209, 55, 63, 0.35);
+    }
+
+    /* 管理者だけに見える項目であることを一目で示すバッジ */
+    .badge-admin {
+      display: inline-block;
+      font-size: 0.7em;
+      font-weight: bold;
+      padding: 3px 10px;
+      margin-left: 6px;
+      border-radius: 999px;
+      background: #fff3cd;
+      color: #7a5b00;
+      border: 1px solid #e8c766;
+      vertical-align: middle;
+    }
+    nav a.nav-admin {
+      border-color: #c98a00;
+      color: #7a5b00;
+      background: #fff8e6;
+    }
+
+    .inline-edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      width: 100%;
+    }
+    .inline-edit-form textarea { width: 100%; }
+
+    /* カテゴリごとのタブ切り替えUI（ルール・FAQの全体編集画面で使用） */
+    .tab-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .tab-btn {
+      background: #ffffff;
+      color: var(--clublink-blue);
+      border: 2px solid var(--clublink-blue);
+      box-shadow: none;
+      font-size: 0.85em;
+      min-height: 42px;
+      padding: 8px 16px;
+      border-radius: 999px;
+    }
+    .tab-btn.active {
+      background: var(--clublink-blue);
+      color: #ffffff;
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* グリッド表（合宿費・入金状況など）は横に長くなりやすいため、
+       スマホでは画面内で横スクロールできるようにして崩れを防ぐ */
+    .table-scroll {
+      width: 100%;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    /* --- スマホ（幅600px以下）向けの調整 --- */
+    @media (max-width: 600px) {
+      :root {
+        --clublink-font-size: 17px;
+        --clublink-control-height: 50px;
+      }
+
+      body { padding: 8px 6px 40px; }
+
+      .page-shell {
+        padding: 16px 12px 24px;
+        border-radius: 14px;
+      }
+
+      h1 { font-size: 1.35em; }
+      h2 { font-size: 1.1em; }
+
+      /* 横並びのナビは指で押しやすいよう縦に積む */
+      nav {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      nav a {
+        text-align: center;
+        font-size: 0.95em;
+      }
+
+      /* PC用に幅を制限していた入力欄も、スマホでは画面幅いっぱいに広げる */
+      input[type="text"],
+      input[type="email"],
+      input[type="password"],
+      input[type="number"],
+      input[type="date"],
+      input[type="datetime-local"],
+      input[type="file"],
+      select,
+      textarea {
+        max-width: 100%;
+      }
+
+      button, input[type="submit"] {
+        width: 100%;
+      }
+      /* 一覧の削除ボタンなど、カード内に収まる小さいボタンは全幅にしない */
+      ul.card-list li.card button {
+        width: auto;
+      }
+
+      .btn-cta { font-size: 1.1em; padding: 20px 16px; }
+
+      ul.card-list li.card {
+        flex-wrap: wrap;
+      }
+    }
+
+    @media print {
+      nav, .btn-print, button, .page-shell {
+        box-shadow: none !important;
+      }
+      nav, .btn-print, button { display: none !important; }
+      input, textarea, select { border: none !important; background: transparent !important; }
+      .card { box-shadow: none; border: 1px solid #999; }
+      body { background: #ffffff; display: block; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page-shell">
+  {% if session.preview_mode %}
+  <div class="card" style="display:block; background:#fff8e6; border-color:#c98a00; margin-bottom:16px;">
+    <strong>👀 プレビューモード中</strong>
+    <p class="hint">一般保護者から見た画面をそのまま表示しています。管理者専用の項目は操作できません。</p>
+    <form method="post" action="{{ url_for('admin.preview_stop') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit">プレビューを終了する</button>
+    </form>
+  </div>
+  {% endif %}
+  {% if current_user.is_authenticated %}
+  <nav>
+    {# 一般保護者は最低限の4項目のみ（今日の活動・予定・お知らせ・ルール/FAQ）+ 自分の情報 #}
+    <a href="{{ url_for('today.today_dashboard') }}">今日の活動</a>
+    <a href="{{ url_for('schedule.schedule_list') }}">年間予定</a>
+    <a href="{{ url_for('info.announcement_post') }}">お知らせ</a>
+    <a href="{{ url_for('info.rules_faq') }}">ルール・FAQ</a>
+    <a href="{{ url_for('mypage.mypage') }}">マイページ</a>
+
+    {# 管理保護者向けの運営系項目は個別に並べず、管理者ホームに集約する #}
+    {% if nav_is_admin %}<a class="nav-admin" href="{{ url_for('admin.admin_home') }}">管理者ホーム<span class="badge-admin">🔒管理者限定</span></a>{% endif %}
+
+    <a href="{{ url_for('auth.logout') }}">ログアウト</a>
+  </nav>
+  {% endif %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+      <ul>
+      {% for category, message in messages %}
+        <li class="{{ category }}">{{ message }}</li>
+      {% endfor %}
+      </ul>
+    {% endif %}
+  {% endwith %}
+  {% block content %}{% endblock %}
+  </div>
+  <script>
+    // カテゴリごとのタブ切り替え（ルール・FAQの全体編集画面などで使用する汎用処理）
+    function clublinkShowTab(groupId, tabId) {
+      var group = document.getElementById(groupId);
+      if (!group) return;
+      group.querySelectorAll('.tab-btn').forEach(function (btn) {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+      });
+      group.querySelectorAll('.tab-panel').forEach(function (panel) {
+        panel.classList.toggle('active', panel.id === tabId);
+      });
+    }
+  </script>
+</body>
+</html>

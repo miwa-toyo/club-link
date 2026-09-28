@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>クラブを新規作成</h1>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.club_name.label }} {{ form.club_name() }}</p>
+  <p>{{ form.display_name.label }} {{ form.display_name() }}</p>
+  <p>{{ form.email.label }} {{ form.email() }}</p>
+  <p>{{ form.password.label }} {{ form.password() }}</p>
+  <button type="submit">作成する</button>
+</form>
+{% endblock %}

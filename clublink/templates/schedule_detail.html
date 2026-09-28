@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ schedule.kind }}（{{ schedule.starts_at.strftime('%Y-%m-%d %H:%M') }}）</h1>
+<p>場所: {{ schedule.place }}</p>
+<p>送迎: {{ "必要" if schedule.needs_car else "不要" }}
+{% if schedule.needs_car %}
+（<a href="{{ url_for('vehicle.vehicle_assign', schedule_id=schedule.id) }}">車出しの申し出・確認</a>）
+{% endif %}
+</p>
+
+<p class="hint">
+  出欠は基本「全員参加」として扱います。欠席する場合のみ、
+  <a href="{{ url_for('mypage.absence_report') }}">マイページの欠席連絡</a>からお知らせください。
+</p>
+
+{% if can_edit %}
+<h2>欠席者一覧 <span class="badge-admin">🔒管理者限定</span></h2>
+<ul class="card-list">
+{% for absence, child in absences %}
+  <li class="card">
+    <span class="card-icon">🙅</span>
+    <div>{{ child.display_name }}{% if absence.reason %}（{{ absence.reason }}）{% endif %}</div>
+  </li>
+{% else %}
+  <li>欠席の連絡はありません（全員参加予定です）</li>
+{% endfor %}
+</ul>
+{% endif %}
+
+<p><a href="{{ url_for('schedule.schedule_list') }}">← 予定一覧に戻る</a></p>
+{% endblock %}

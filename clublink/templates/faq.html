@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>FAQ検索</h1>
+
+<form method="get">
+  <input type="text" name="q" value="{{ keyword }}" placeholder="キーワードで検索">
+  <button type="submit">検索</button>
+</form>
+
+<ul class="card-list">
+{% for faq in faqs %}
+  <li class="card">
+    <div>
+      <strong>【{{ faq.category if faq.category else "未分類" }}】Q. {{ faq.question }}</strong>
+      <p>A. {{ faq.answer }}</p>
+    </div>
+  </li>
+{% else %}
+  <li>該当するFAQはありません</li>
+{% endfor %}
+</ul>
+<p><a href="{{ url_for('info.rules_faq') }}">← ルール・FAQ一覧に戻る（追加・編集はこちら）</a></p>
+{% endblock %}

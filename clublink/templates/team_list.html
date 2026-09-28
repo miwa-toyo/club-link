@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>チーム一覧</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+<ul class="card-list">
+{% for team in teams %}
+  <li class="card"><span class="card-icon">🏐</span><a href="{{ url_for('team.team_members', team_id=team.id) }}">{{ team.name }}</a></li>
+{% else %}
+  <li>チームがありません</li>
+{% endfor %}
+</ul>
+<p><a href="{{ url_for('team.team_compose') }}">チーム編成（子供の割り当て）</a></p>
+
+<h2>チームを追加</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.name.label }} {{ form.name() }}</p>
+  <button type="submit">追加する</button>
+</form>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>契約プラン</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは重要管理者限定です</span></p>
+{% if current_plan %}
+<p>現在のプラン: {{ current_plan.name }}（月額{{ current_plan.monthly_yen }}円、状態: {{ subscription.state }}）</p>
+{% else %}
+<p>契約情報が見つかりません。</p>
+{% endif %}
+
+<details>
+  <summary class="btn-link btn-print">📊 プランを比較する</summary>
+  <div class="table-scroll" style="margin-top:8px;">
+    <table class="grid-table">
+      <tr>
+        <th></th>
+        {% for plan in plans %}
+        <th>{{ plan.name }}</th>
+        {% endfor %}
+      </tr>
+      {% for row in comparison_rows %}
+      <tr>
+        <th>{{ row.label }}</th>
+        {% for value in row.cells %}
+        <td>{{ value }}</td>
+        {% endfor %}
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</details>
+
+<h2>プランを変更する</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.plan_id.label }} {{ form.plan_id() }}</p>
+  <button type="submit">変更する</button>
+</form>
+{% endblock %}

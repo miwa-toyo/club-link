@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>ルール</h1>
+
+<ul>
+{% for rule in rules %}
+  <li>
+    <strong>{{ rule.category }}</strong>（更新: {{ rule.updated_at.strftime('%Y-%m-%d') }}）
+    <p>{{ rule.current_body }}</p>
+    <a href="{{ url_for('info.rule_history', category=rule.category) }}">変更履歴を見る</a>
+  </li>
+{% else %}
+  <li>登録されているルールはありません</li>
+{% endfor %}
+</ul>
+
+{% if can_edit %}
+<h2>ルールを追加・更新</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.category.label }} {{ form.category() }}</p>
+  <p>{{ form.body.label }} {{ form.body() }}</p>
+  <p>{{ form.reason.label }} {{ form.reason() }}</p>
+  <button type="submit">保存する</button>
+</form>
+{% endif %}
+{% endblock %}

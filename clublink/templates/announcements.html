@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>お知らせ</h1>
+
+{% if can_post %}
+<h2>お知らせを投稿する <span class="badge-admin">🔒管理者限定</span></h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.title.label }} {{ form.title() }}</p>
+  <p>{{ form.body.label }} {{ form.body() }}</p>
+  <button type="submit">投稿する</button>
+</form>
+{% endif %}
+
+<ul class="card-list">
+{% for announcement in announcements %}
+  <li class="card" style="{{ 'display:block;' if can_post else '' }}">
+    {% if can_post %}
+    <form method="post">
+      {{ form.hidden_tag() }}
+      <input type="hidden" name="announcement_id" value="{{ announcement.id }}">
+      <p class="hint">{{ announcement.posted_at.strftime('%Y-%m-%d') }}</p>
+      <input type="text" name="title" value="{{ announcement.title }}">
+      <textarea name="body">{{ announcement.body }}</textarea>
+      <button type="submit">この内容で更新する</button>
+    </form>
+    <form method="post" action="{{ url_for('info.announcement_delete', announcement_id=announcement.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-danger">このお知らせを削除する</button>
+    </form>
+    {% else %}
+    <span class="card-icon">📣</span>
+    <div>
+      <strong>{{ announcement.posted_at.strftime('%Y-%m-%d') }} {{ announcement.title }}</strong>
+      <p>{{ announcement.body }}</p>
+    </div>
+    {% endif %}
+  </li>
+{% else %}
+  <li>お知らせはありません</li>
+{% endfor %}
+</ul>
+{% endblock %}

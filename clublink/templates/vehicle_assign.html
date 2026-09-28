@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ schedule.kind }}（{{ schedule.starts_at.strftime('%Y-%m-%d %H:%M') }}）の車出し</h1>
+
+<h2>現在の申し出</h2>
+<ul class="card-list">
+{% for assignment, guardian in assignments %}
+  <li class="card">
+    <span class="card-icon">🚗</span>
+    <div>
+      {{ guardian.display_name }}：{{ assignment.direction }}（乗車可能 {{ guardian.vehicle_seats }}人）
+      {% if assignment.comment %}<br>コメント: {{ assignment.comment }}{% endif %}
+    </div>
+    {% if assignment.guardian_id == current_guardian_id %}
+    <form method="post" action="{{ url_for('vehicle.vehicle_unassign', schedule_id=schedule.id, assignment_id=assignment.id) }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-danger">取り消す</button>
+    </form>
+    {% endif %}
+  </li>
+{% else %}
+  <li>まだ申し出はありません</li>
+{% endfor %}
+</ul>
+
+{% if can_drive %}
+<h2>車出しを申し出る</h2>
+<p class="hint">乗車可能人数はマイページの送迎情報登録時の値を使用します。ここでの入力は不要です。</p>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.direction.label }} {{ form.direction() }}</p>
+  <p>{{ form.comment.label }} {{ form.comment() }}</p>
+  <button type="submit">申し出る</button>
+</form>
+{% else %}
+<p>送迎できると回答するには、マイページで送迎情報を設定してください。</p>
+{% endif %}
+<p><a href="{{ url_for('schedule.schedule_detail', schedule_id=schedule.id) }}">← 予定詳細に戻る</a></p>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ camp.title }} — 合宿費</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+<p class="hint">費目名（下の見出し）は自由に書き換えられます。右端の欄に新しい費目名を入れると列が追加されます。</p>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="table-scroll">
+  <table class="grid-table">
+    <tr>
+      <th>保護者</th>
+      {% for category in categories %}
+      <th><input type="text" name="category_label_{{ category.id }}" value="{{ category.label }}"></th>
+      {% endfor %}
+      <th>状態</th>
+    </tr>
+    {% for fee, guardian in fees %}
+    <tr>
+      <td>{{ guardian.display_name }}</td>
+      {% for category in categories %}
+      <td>
+        <input
+          type="number"
+          name="amount_{{ fee.id }}_{{ category.id }}"
+          value="{{ amounts_by_fee.get(fee.id, {}).get(category.id, 0) }}"
+          min="0"
+        >
+      </td>
+      {% endfor %}
+      <td>
+        <select name="status_{{ fee.id }}">
+          <option value="未払い" {% if fee.status == "未払い" %}selected{% endif %}>未払い</option>
+          <option value="支払い済み" {% if fee.status == "支払い済み" %}selected{% endif %}>支払い済み</option>
+        </select>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
+</div>
+
+  <p>
+    新しい費目を追加：
+    <input type="text" name="new_category_label" placeholder="例：保険料">
+  </p>
+
+  <button type="submit">一括保存</button>
+</form>
+<p><a href="{{ url_for('camp.camp_edit', camp_id=camp.id) }}">合宿詳細に戻る</a></p>
+{% endblock %}

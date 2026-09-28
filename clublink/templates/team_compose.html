@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>チーム編成</h1>
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for child in children %}
+  <p>
+    {{ child.display_name }}：
+    <select name="team_{{ child.id }}">
+      {% for team in teams %}
+      <option value="{{ team.id }}" {% if memberships.get(child.id) == team.id %}selected{% endif %}>
+        {{ team.name }}
+      </option>
+      {% endfor %}
+    </select>
+  </p>
+  {% else %}
+  <p>在籍中のお子さまがいません</p>
+  {% endfor %}
+  <button type="submit">保存する</button>
+</form>
+<p><a href="{{ url_for('team.team_list') }}">チーム一覧に戻る</a></p>
+{% endblock %}

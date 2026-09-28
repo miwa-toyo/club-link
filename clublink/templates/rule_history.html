@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ rule.category }} の変更履歴</h1>
+<ul>
+{% for version in versions %}
+  <li>
+    <strong>{{ version.changed_at.strftime('%Y-%m-%d %H:%M') }}</strong>
+    （理由: {{ version.reason or "未記入" }}）
+    <p>変更前: {{ version.before }}</p>
+    <p>変更後: {{ version.after }}</p>
+  </li>
+{% else %}
+  <li>変更履歴はありません</li>
+{% endfor %}
+</ul>
+<p><a href="{{ url_for('info.rules_faq') }}">← ルール・FAQに戻る</a></p>
+{% endblock %}

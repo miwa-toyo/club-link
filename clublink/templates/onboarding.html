@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>初回アンケート</h1>
+<p class="hint">まずはお子さま1人分と、送迎できる車があるかを登録してください。ご兄弟がいる場合は次の画面から追加できます。</p>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.family_name.label }} {{ form.family_name() }}</p>
+  <p>{{ form.court_name.label }} {{ form.court_name() }}</p>
+  <p>{{ form.birth_date.label }} {{ form.birth_date() }}</p>
+  <p>{{ form.gender.label }} {{ form.gender() }}</p>
+  <p>{{ form.allergy.label }} {{ form.allergy() }}</p>
+  <p>{{ form.can_drive.label }} {{ form.can_drive() }}</p>
+  <p>{{ form.vehicle_seats.label }} {{ form.vehicle_seats() }}</p>
+  <button type="submit">登録する</button>
+</form>
+{% endblock %}

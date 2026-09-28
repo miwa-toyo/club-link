@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>駐車場管理</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+<ul>
+{% for lot in lots %}
+  <li>
+    {{ lot.name }}（{{ lot.address }}、収容{{ lot.capacity }}台）{{ lot.memo }}
+    <form method="post" action="{{ url_for('vehicle.parking_delete', lot_id=lot.id) }}" style="display:inline">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn-danger">削除</button>
+    </form>
+  </li>
+{% else %}
+  <li>登録されている駐車場はありません</li>
+{% endfor %}
+</ul>
+
+<h2>駐車場を追加</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.name.label }} {{ form.name() }}</p>
+  <p>{{ form.address.label }} {{ form.address() }}</p>
+  <p>{{ form.capacity.label }} {{ form.capacity() }}</p>
+  <p>{{ form.memo.label }} {{ form.memo() }}</p>
+  <button type="submit">追加する</button>
+</form>
+{% endblock %}

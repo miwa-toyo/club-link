@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Club Link</h1>
+<ul class="card-list">
+  <li class="card"><span class="card-icon">🔑</span><a href="{{ url_for('auth.login') }}">ログイン</a></li>
+  <li class="card"><span class="card-icon">🏫</span><a href="{{ url_for('auth.register') }}">クラブを新規作成</a></li>
+  <li class="card"><span class="card-icon">✉️</span><a href="{{ url_for('auth.join_club') }}">招待コードで参加</a></li>
+</ul>
+{% endblock %}

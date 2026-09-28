@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>マイページ</h1>
+<p class="hint">{{ guardian.display_name }} 様</p>
+
+<ul class="card-list">
+  <li class="card">
+    <span class="card-icon">🙅</span>
+    <a href="{{ url_for('mypage.absence_report') }}">欠席の連絡</a>
+    <div>（お休みするときだけ連絡してください。基本は全員参加扱いです）</div>
+  </li>
+  <li class="card">
+    <span class="card-icon">🚗</span>
+    <div>送迎: {{ "可" if guardian.can_drive else "不可" }}（乗車可能人数: {{ guardian.vehicle_seats }}）</div>
+    <a href="{{ url_for('mypage.vehicle_edit') }}">編集</a>
+  </li>
+</ul>
+
+<h2>お子さま</h2>
+<ul class="card-list">
+{% for child in guardian.children %}
+  <li class="card">
+    <span class="card-icon">{{ "👦" if child.gender == "男子" else "👧" }}</span>
+    <a href="{{ url_for('mypage.child_edit', child_id=child.id) }}">{{ child.display_name }}</a>
+    <div>（{{ child.gender }}・{{ child.status_label }}）</div>
+  </li>
+{% else %}
+  <li>登録されているお子さまはいません</li>
+{% endfor %}
+</ul>
+<p><a class="btn-cta" href="{{ url_for('mypage.family_edit') }}">➕ お子さまを追加</a></p>
+{% endblock %}

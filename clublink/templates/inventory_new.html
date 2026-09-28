@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>備品の追加</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.name.label }} {{ form.name() }}</p>
+  <p>{{ form.count.label }} {{ form.count() }}</p>
+  <p>{{ form.location_text.label }} {{ form.location_text() }}</p>
+  <button type="submit">追加する</button>
+</form>
+<p><a href="{{ url_for('inventory.inventory_list') }}">物品一覧に戻る</a></p>
+{% endblock %}

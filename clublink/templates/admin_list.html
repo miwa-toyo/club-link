@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>管理者の管理</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+
+<form method="get">
+  <input type="text" name="q" value="{{ keyword }}" placeholder="保護者名で検索">
+  <button type="submit">検索</button>
+</form>
+
+<div class="table-scroll">
+  <table class="grid-table">
+  <tr><th>保護者</th><th>現在の権限</th><th>操作</th></tr>
+  {% for guardian in guardians %}
+  {% set role = roles.get(guardian.user_id) %}
+  <tr>
+    <td>{{ guardian.display_name }}</td>
+    <td>{{ role.name ~ "（" ~ role.level ~ "）" if role else "一般保護者" }}</td>
+    <td>
+      <form method="post" style="display:inline">
+        {{ form.hidden_tag() }}
+        <input type="hidden" name="guardian_id" value="{{ guardian.id }}">
+        <input type="text" name="name" placeholder="役職名" value="{{ role.name if role else '' }}" size="8">
+        <select name="level">
+          <option value="閲覧" {% if role and role.level == "閲覧" %}selected{% endif %}>閲覧</option>
+          <option value="編集" {% if role and role.level == "編集" %}selected{% endif %}>編集</option>
+          <option value="重要管理" {% if role and role.level == "重要管理" %}selected{% endif %}>重要管理</option>
+        </select>
+        <button type="submit">設定する</button>
+      </form>
+      {% if role %}
+      <form method="post" style="display:inline">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="guardian_id" value="{{ guardian.id }}">
+        <input type="hidden" name="action" value="remove">
+        <button type="submit" class="btn-danger">解除する</button>
+      </form>
+      {% endif %}
+      <form method="post" action="{{ url_for('admin.admin_reset_password', guardian_id=guardian.id) }}" style="display:inline" onsubmit="return confirm('{{ guardian.display_name }}さんのパスワードを再設定します。よろしいですか？');">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button type="submit">パスワードを再設定する</button>
+      </form>
+    </td>
+  </tr>
+  {% else %}
+  <tr><td colspan="3">該当する保護者はいません</td></tr>
+  {% endfor %}
+</table>
+</div>
+<p><a href="{{ url_for('admin.admin_home') }}">管理者ホームに戻る</a></p>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ child.display_name }} の編集</h1>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.family_name.label }} {{ form.family_name() }}</p>
+  <p>{{ form.court_name.label }} {{ form.court_name() }}</p>
+  <p>{{ form.gender.label }} {{ form.gender() }}</p>
+  <p>{{ form.birth_date.label }} {{ form.birth_date() }}</p>
+  <p>{{ form.allergy.label }} {{ form.allergy() }}</p>
+  <p>{{ form.status.label }} {{ form.status() }}</p>
+  <button type="submit">保存する</button>
+</form>
+<p><a href="{{ url_for('mypage.mypage') }}">← マイページに戻る</a></p>
+{% endblock %}

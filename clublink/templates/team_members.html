@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ team.name }} — メンバー一覧</h1>
+<ul>
+{% for child in members %}
+  <li>{{ child.display_name }}</li>
+{% else %}
+  <li>メンバーはいません</li>
+{% endfor %}
+</ul>
+<p><a href="{{ url_for('team.team_list') }}">チーム一覧に戻る</a></p>
+{% endblock %}

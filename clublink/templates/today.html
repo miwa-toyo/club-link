@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>今日の活動</h1>
+
+<h2>📅 直近の予定（近い順）</h2>
+<ul class="card-list">
+{% for schedule in schedules %}
+  <li class="card card-schedule">
+    <span class="card-icon">📅</span>
+    <a href="{{ url_for('schedule.schedule_detail', schedule_id=schedule.id) }}">
+      {{ schedule.starts_at.strftime('%Y-%m-%d %H:%M') }} {{ schedule.kind }}（{{ schedule.place }}）
+    </a>
+  </li>
+{% else %}
+  <li>直近の予定はありません</li>
+{% endfor %}
+</ul>
+
+<h2>📣 お知らせ（新しい順）</h2>
+<ul class="card-list">
+{% for announcement in announcements %}
+  <li class="card card-announcement">
+    <span class="card-icon">📣</span>
+    <a href="{{ url_for('info.announcement_post') }}">
+      {{ announcement.posted_at.strftime('%Y-%m-%d') }} {{ announcement.title }}
+    </a>
+  </li>
+{% else %}
+  <li>お知らせはありません</li>
+{% endfor %}
+</ul>
+{% endblock %}

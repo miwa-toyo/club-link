@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ camp.title }} — 持ち物リスト</h1>
+<p>
+  <button type="button" class="btn-print" onclick="window.print()">🖨 印刷する</button>
+</p>
+
+{% if can_post %}
+<p class="hint"><span class="badge-admin">🔒 編集は管理者限定です</span></p>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="table-scroll">
+  <table class="grid-table">
+    <tr><th>持ち物</th><th>必要数</th><th>削除</th></tr>
+    {% for item in items %}
+    <tr>
+      <td><input type="text" name="name_{{ item.id }}" value="{{ item.name }}"></td>
+      <td><input type="number" name="count_{{ item.id }}" value="{{ item.target_count }}" min="0"></td>
+      <td><input type="checkbox" name="delete_{{ item.id }}"> 削除</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td><input type="text" name="new_name" placeholder="例: 水筒"></td>
+      <td><input type="number" name="new_count" min="0" value="1"></td>
+      <td></td>
+    </tr>
+  </table>
+</div>
+  <button type="submit">一括保存</button>
+</form>
+{% else %}
+<ul class="card-list">
+{% for item in items %}
+  {% if item.target_count > 0 %}
+  <li class="card"><span class="card-icon">🎒</span>{{ item.name }}：{{ item.target_count }}個</li>
+  {% endif %}
+{% else %}
+  <li>持ち物はまだ登録されていません</li>
+{% endfor %}
+</ul>
+{% endif %}
+<p><a href="{{ url_for('camp.camp_edit', camp_id=camp.id) }}">合宿詳細に戻る</a></p>
+{% endblock %}

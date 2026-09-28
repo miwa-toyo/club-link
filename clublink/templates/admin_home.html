@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>管理者ホーム</h1>
+<p class="hint">
+  保護者数: {{ guardian_count }}人／管理者数: {{ admin_count }}人
+  ／あなたの権限: {{ my_role.level if my_role else "―" }}
+</p>
+
+<div class="card" style="display:block;">
+  <strong>🙅 最近の欠席連絡</strong>
+  <ul class="card-list">
+  {% for absence, child, schedule in recent_absences %}
+    <li class="card">
+      <a href="{{ url_for('schedule.schedule_detail', schedule_id=schedule.id) }}">
+        {{ schedule.starts_at.strftime('%Y-%m-%d') }} {{ schedule.kind }}：{{ child.display_name }}
+        {% if absence.reason %}（{{ absence.reason }}）{% endif %}
+      </a>
+    </li>
+  {% else %}
+    <li>欠席の連絡はまだありません</li>
+  {% endfor %}
+  </ul>
+</div>
+
+<div class="card" style="display:block;">
+  <strong>招待コード（他の保護者を招待するときに使ってください）</strong>
+  <p style="font-size:1.4em; font-weight:bold; letter-spacing:2px;">{{ club.invite_code }}</p>
+  <p class="hint">
+    このコードを他の保護者に伝えると、トップページの「招待コードで参加」から仲間が参加できます。
+    参加後、下の「管理者の追加・変更・解除」からその方を管理者に設定すると、複数人での管理ができます。
+  </p>
+</div>
+
+<div class="card" style="display:block;">
+  <strong>動作確認</strong>
+  <p class="hint">
+    サンプルデータ（お知らせ・ルール・FAQ・予定・子供）を投入して、実際の画面がどう見えるか確認できます。
+    投入後は下のボタンから一般保護者としてのプレビューに切り替えられます。
+  </p>
+  <form method="post" action="{{ url_for('admin.seed_sample_data') }}" style="display:inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit">🧪 サンプルデータを投入する</button>
+  </form>
+  <form method="post" action="{{ url_for('admin.delete_sample_data') }}" style="display:inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn-danger">🗑️ サンプルデータを削除する</button>
+  </form>
+  <form method="post" action="{{ url_for('admin.preview_start') }}" style="display:inline">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <button type="submit" class="btn-print">👀 一般保護者としてプレビューする</button>
+  </form>
+</div>
+
+<ul class="card-list">
+  <li class="card"><span class="card-icon">💰</span><a href="{{ url_for('fee.allocation_list') }}">会計</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">💴</span><a href="{{ url_for('fee.fee_setting') }}">部費設定</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">🅿️</span><a href="{{ url_for('vehicle.parking_admin') }}">駐車場管理</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">🏕️</span><a href="{{ url_for('camp.camp_list') }}">合宿一覧を見る</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">🏕️</span><a href="{{ url_for('camp.camp_new') }}">合宿を追加</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">📅</span><a href="{{ url_for('schedule.schedule_new') }}">予定を追加</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">📦</span><a href="{{ url_for('inventory.inventory_list') }}">物品を管理</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">📣</span><a href="{{ url_for('info.announcement_post') }}">お知らせの編集</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">📖</span><a href="{{ url_for('info.rules_faq') }}">ルール・FAQの編集</a> <span class="badge-admin">🔒編集権限以上</span></li>
+  <li class="card"><span class="card-icon">☎️</span><a href="{{ url_for('info.support') }}">お問い合わせ窓口・よくある質問</a> <span class="badge-admin">🔒閲覧権限以上</span></li>
+  <li class="card"><span class="card-icon">🛡️</span><a href="{{ url_for('admin.admin_add') }}">管理者の追加・変更・解除</a> <span class="badge-admin">🔒重要管理者限定</span></li>
+  <li class="card"><span class="card-icon">📆</span><a href="{{ url_for('admin.year_update') }}">年度更新</a> <span class="badge-admin">🔒重要管理者限定</span></li>
+  <li class="card"><span class="card-icon">📜</span><a href="{{ url_for('admin.audit_log') }}">監査ログ</a> <span class="badge-admin">🔒重要管理者限定</span></li>
+  <li class="card"><span class="card-icon">💳</span><a href="{{ url_for('admin.plan_view') }}">契約プラン</a> <span class="badge-admin">🔒重要管理者限定</span></li>
+  <li class="card"><span class="card-icon">🏐</span><a href="{{ url_for('team.team_list') }}">チーム編成</a> <span class="badge-admin">🔒編集権限以上</span></li>
+</ul>
+
+{% if my_role and my_role.level != "重要管理" %}
+<p class="hint">
+  上記のうち「🔒重要管理者限定」の項目は、あなたの現在の権限（{{ my_role.level }}）では開けません。
+  重要管理者に依頼して権限を変更してもらってください。
+</p>
+{% endif %}
+{% endblock %}

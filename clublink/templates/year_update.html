@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>年度更新</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+<ul>
+{% for year in years %}
+  <li>{{ year.name }} {% if year.is_current %}（現行）{% endif %}</li>
+{% endfor %}
+</ul>
+
+<h2>新しい年度を作成する</h2>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.name.label }} {{ form.name() }}</p>
+  <button type="submit">更新する</button>
+</form>
+
+<h2>OB/OG管理（在籍・卒団・退部）</h2>
+<p class="hint">状態を「卒団」または「退部」に変更するときは、卒団・退部した年度もあわせて選んでください。</p>
+<form method="post" action="{{ url_for('admin.year_member_bulk_update') }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="table-scroll">
+    <table class="grid-table">
+      <tr><th>お子さま</th><th>状態</th><th>卒団・退部した年度</th></tr>
+      {% for child in children %}
+      <tr>
+        <td>{{ child.display_name }}</td>
+        <td>
+          <select name="status_{{ child.id }}">
+            <option value="active" {% if child.status == "active" %}selected{% endif %}>在籍</option>
+            <option value="graduated" {% if child.status == "graduated" %}selected{% endif %}>卒団</option>
+            <option value="withdrawn" {% if child.status == "withdrawn" %}selected{% endif %}>退部</option>
+          </select>
+        </td>
+        <td>
+          <select name="left_year_{{ child.id }}">
+            <option value="">未設定</option>
+            {% for year in years %}
+            <option value="{{ year.id }}" {% if child.left_club_year_id == year.id %}selected{% endif %}>{{ year.name }}</option>
+            {% endfor %}
+          </select>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="3">登録されているお子さまはいません</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+  <button type="submit">OB/OGの状態を一括保存する</button>
+</form>
+
+<h3>年度ごとのOB/OG一覧</h3>
+{% for year_label, alumni in alumni_by_year %}
+<h4>{{ year_label }}</h4>
+<ul>
+  {% for child in alumni %}
+  <li>{{ child.display_name }}（{{ child.status_label }}）</li>
+  {% endfor %}
+</ul>
+{% else %}
+<p>OB/OGはまだ登録されていません</p>
+{% endfor %}
+
+<p><a href="{{ url_for('admin.admin_home') }}">管理者ホームに戻る</a></p>
+{% endblock %}

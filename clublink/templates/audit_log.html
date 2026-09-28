@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>監査ログ</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+
+<form method="get">
+  <label>操作で絞り込み
+    <select name="action" onchange="this.form.submit()">
+      <option value="" {% if not action_filter %}selected{% endif %}>すべて</option>
+      {% for action in all_actions %}
+      <option value="{{ action }}" {% if action_filter == action %}selected{% endif %}>{{ action }}</option>
+      {% endfor %}
+    </select>
+  </label>
+</form>
+
+<div class="table-scroll">
+  <table class="grid-table">
+  <tr><th>日時</th><th>操作</th><th>対象</th></tr>
+  {% for log in logs %}
+  <tr>
+    <td>{{ log.at.strftime('%Y-%m-%d %H:%M') }}</td>
+    <td>{{ log.action }}</td>
+    <td>{{ log.target_type }}{% if log.target_id %} #{{ log.target_id }}{% endif %}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="3">該当する監査ログはありません</td></tr>
+  {% endfor %}
+</table>
+</div>
+<p><a href="{{ url_for('admin.admin_home') }}">管理者ホームに戻る</a></p>
+{% endblock %}

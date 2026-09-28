@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ camp.title }} — 支出（家計簿）</h1>
+{% if can_post %}
+<p class="hint"><span class="badge-admin">🔒 編集は管理者限定です</span></p>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <div class="table-scroll">
+  <table class="grid-table">
+    <tr><th>日付</th><th>種別</th><th>金額（円）</th><th>メモ</th><th>削除</th></tr>
+    {% for expense in expenses %}
+    <tr>
+      <td>{{ expense.created_at.strftime('%Y-%m-%d') }}</td>
+      <td>
+        <select name="kind_{{ expense.id }}">
+          <option value="食費" {% if expense.kind == "食費" %}selected{% endif %}>食費</option>
+          <option value="補食" {% if expense.kind == "補食" %}selected{% endif %}>補食</option>
+          <option value="その他" {% if expense.kind == "その他" %}selected{% endif %}>その他</option>
+        </select>
+      </td>
+      <td><input type="number" name="amount_{{ expense.id }}" value="{{ expense.amount_yen }}" min="0"></td>
+      <td><input type="text" name="memo_{{ expense.id }}" value="{{ expense.memo }}" placeholder="例: 夕食の食材費"></td>
+      <td><input type="checkbox" name="delete_{{ expense.id }}"> 削除</td>
+    </tr>
+    {% endfor %}
+    <tr>
+      <td>新規</td>
+      <td>
+        <select name="new_kind">
+          <option value="食費">食費</option>
+          <option value="補食">補食</option>
+          <option value="その他">その他</option>
+        </select>
+      </td>
+      <td><input type="number" name="new_amount" min="0" placeholder="金額"></td>
+      <td><input type="text" name="new_memo" placeholder="例: 夕食の食材費"></td>
+      <td></td>
+    </tr>
+  </table>
+</div>
+  <button type="submit">一括保存</button>
+</form>
+{% else %}
+<ul>
+{% for expense in expenses %}
+  <li>{{ expense.created_at.strftime('%Y-%m-%d') }} [{{ expense.kind }}] {{ expense.amount_yen }}円 {{ expense.memo }}</li>
+{% else %}
+  <li>支出はまだ登録されていません</li>
+{% endfor %}
+</ul>
+{% endif %}
+<p><a href="{{ url_for('camp.camp_edit', camp_id=camp.id) }}">合宿詳細に戻る</a></p>
+{% endblock %}

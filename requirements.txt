@@ -1,0 +1,11 @@
+Flask>=3.0
+Flask-SQLAlchemy>=3.1
+Flask-Login>=0.6
+Flask-WTF>=1.2
+WTForms>=3.0
+email_validator>=2.0
+
+# 任意（OCR機能を使う場合のみ・Proプラン限定機能）:
+# pytesseract>=0.3
+# Pillow>=10.0
+# ※ OS側に tesseract-ocr 本体（+ 日本語言語データ tesseract-ocr-jpn）のインストールも必要です。

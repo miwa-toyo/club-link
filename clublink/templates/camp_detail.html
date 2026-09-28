@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ camp.title }}</h1>
+<p class="hint">期間: {{ camp.starts_on }} 〜 {{ camp.ends_on }} ／ 場所: {{ camp.place_text }}</p>
+<ul class="card-list">
+  {% if can_edit %}
+  <li class="card"><span class="card-icon">💴</span><a href="{{ url_for('camp.camp_fees_grid', camp_id=camp.id) }}">合宿費の管理</a> <span class="badge-admin">🔒管理者限定</span></li>
+  {% endif %}
+  <li class="card"><span class="card-icon">📒</span><a href="{{ url_for('camp.expense_add', camp_id=camp.id) }}">支出の記録</a></li>
+  <li class="card"><span class="card-icon">🧮</span><a href="{{ url_for('camp.settle_calc', camp_id=camp.id) }}">収支精算</a></li>
+  <li class="card"><span class="card-icon">🎒</span><a href="{{ url_for('camp.packing_master', camp_id=camp.id) }}">持ち物リスト</a></li>
+</ul>
+<p><a href="{{ url_for('camp.camp_list') }}">← 合宿一覧に戻る</a></p>
+{% endblock %}

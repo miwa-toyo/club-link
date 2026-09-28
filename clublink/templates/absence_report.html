@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>欠席の連絡</h1>
+<p class="hint">
+  予定は基本「全員参加」として扱います。お休みするときだけ、該当する日付でチェックを入れて
+  保存してください。保存は日付ごとに個別に行われ、他の日付には影響しません。
+  チェックを外して保存すると連絡を取り消せます（参加扱いに戻ります）。
+  対象は今後60日以内に行われる予定です。
+</p>
+
+{% if not children %}
+<p>登録されているお子さまがいません。<a href="{{ url_for('mypage.family_edit') }}">マイページからお子さまを追加</a>してください。</p>
+{% elif not schedules %}
+<p>今後60日以内の予定はまだ登録されていません。</p>
+{% else %}
+{% for schedule in schedules %}
+<form method="post" action="{{ url_for('mypage.absence_report_save', schedule_id=schedule.id) }}" class="card" style="display:block; margin-bottom:12px;">
+  {{ form.hidden_tag() }}
+  <strong>{{ schedule.starts_at.strftime('%Y-%m-%d %H:%M') }} {{ schedule.kind }}（{{ schedule.place }}）</strong>
+  {% for child in children %}
+  {% set report = existing.get((schedule.id, child.id)) %}
+  <p>
+    <label>
+      <input type="checkbox" name="absent_{{ schedule.id }}_{{ child.id }}" {% if report %}checked{% endif %}>
+      {{ child.display_name }} は欠席する
+    </label>
+    <input type="text" name="reason_{{ schedule.id }}_{{ child.id }}" placeholder="理由（任意・例：体調不良）" value="{{ report.reason if report else '' }}">
+  </p>
+  {% endfor %}
+  <button type="submit">この日付を保存する</button>
+</form>
+{% endfor %}
+{% endif %}
+<p><a href="{{ url_for('mypage.mypage') }}">← マイページに戻る</a></p>
+{% endblock %}

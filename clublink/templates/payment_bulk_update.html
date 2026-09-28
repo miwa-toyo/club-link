@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>{{ fee.year }}年{{ fee.month }}月 入金状況（男子{{ fee.amount_yen_male }}円 / 女子{{ fee.amount_yen_female }}円）</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+
+<form method="get">
+  <label>絞り込み
+    <select name="status" onchange="this.form.submit()">
+      <option value="" {% if not status_filter %}selected{% endif %}>すべて</option>
+      <option value="未納" {% if status_filter == "未納" %}selected{% endif %}>未納のみ</option>
+      <option value="入金済み" {% if status_filter == "入金済み" %}selected{% endif %}>入金済みのみ</option>
+    </select>
+  </label>
+</form>
+
+<form method="post">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  {% for payment, guardian in payments %}
+  <p>
+    {{ guardian.display_name }}（{{ payment.amount_yen }}円）：
+    <select name="status_{{ payment.id }}">
+      <option value="未納" {% if payment.status == "未納" %}selected{% endif %}>未納</option>
+      <option value="入金済み" {% if payment.status == "入金済み" %}selected{% endif %}>入金済み</option>
+    </select>
+  </p>
+  {% else %}
+  <p>該当する保護者はいません</p>
+  {% endfor %}
+  <button type="submit">更新する</button>
+</form>
+<p class="hint">※絞り込みで非表示の行は、更新ボタンを押しても変更されません。</p>
+<p><a href="{{ url_for('fee.fee_setting') }}">部費設定に戻る</a></p>
+{% endblock %}

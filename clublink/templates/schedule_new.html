@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>予定の追加</h1>
+<p class="hint"><span class="badge-admin">🔒 このページは管理者限定です</span></p>
+<form method="post">
+  {{ form.hidden_tag() }}
+  <p>{{ form.kind.label }} {{ form.kind() }}</p>
+  <p>{{ form.starts_at.label }} {{ form.starts_at() }}</p>
+  <p>{{ form.place.label }} {{ form.place() }}</p>
+  <p>{{ form.needs_car.label }} {{ form.needs_car() }}</p>
+  <button type="submit">作成する</button>
+</form>
+<p><a href="{{ url_for('admin.admin_home') }}">← 管理者ホームに戻る</a></p>
+{% endblock %}

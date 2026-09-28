@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>予定表の写真からテキスト抽出（OCR・任意機能）</h1>
+<p>抽出結果は参考情報です。内容を確認のうえ、手動で「予定を追加」画面に入力してください。</p>
+
+<form method="post" enctype="multipart/form-data">
+  {{ form.hidden_tag() }}
+  <p>{{ form.photo.label }} {{ form.photo() }}</p>
+  <button type="submit">アップロードして抽出する</button>
+</form>
+
+{% if photo %}
+<h2>抽出結果</h2>
+<textarea rows="8" cols="60" readonly>{{ photo.ocr_text or "テキストを抽出できませんでした（画像の精度、またはOCRエンジン未設定の可能性があります）" }}</textarea>
+<p><a href="{{ url_for('schedule.schedule_new') }}">この内容を見ながら予定を追加する</a></p>
+{% endif %}
+
+<h2>最近のアップロード</h2>
+<ul>
+{% for p in photos %}
+  <li><a href="{{ url_for('ocr.schedule_photo_upload', photo_id=p.id) }}">{{ p.uploaded_at.strftime('%Y-%m-%d %H:%M') }}</a></li>
+{% else %}
+  <li>アップロード履歴はありません</li>
+{% endfor %}
+</ul>
+<p><a href="{{ url_for('admin.admin_home') }}">← 管理者ホームに戻る</a></p>
+{% endblock %}
